@@ -2,6 +2,7 @@ import torch
 
 
 def train_step(mini_batch, policy_dqn, target_dqn, optimizer, loss_fn, gamma, device, double_dqn=False):
+
     states, actions, new_states, rewards, terminations = zip(*mini_batch)
 
     states = torch.stack(states)

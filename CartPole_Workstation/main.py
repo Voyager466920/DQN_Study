@@ -49,18 +49,18 @@ if __name__ == "__main__":
             episode_reward += reward
             state = new_state_t
 
+            if len(memory) >= agent.mini_batch_size:
+                mini_batch = memory.sample(agent.mini_batch_size)
+                train_step(mini_batch, policy_dqn, target_dqn, optimizer,
+                           torch.nn.MSELoss(), agent.discount_factor_g,
+                           device, agent.double_dqn)
+
+                if step_count >= agent.network_sync_rate:
+                    target_dqn.load_state_dict(policy_dqn.state_dict())
+                    step_count = 0
+
         epsilon = max(epsilon * agent.epsilon_decay, agent.epsilon_min)
 
-        if len(memory) > agent.mini_batch_size:
-            mini_batch = memory.sample(agent.mini_batch_size)
-            train_step(mini_batch, policy_dqn, target_dqn, optimizer,
-                       torch.nn.MSELoss(), agent.discount_factor_g,
-                       device, agent.double_dqn)
-
-            if step_count >= agent.network_sync_rate:
-                target_dqn.load_state_dict(policy_dqn.state_dict())
-                step_count = 0
-
         if episode % 10 == 0:
-            avg_reward = test_step(env, policy_dqn, device)
+            avg_reward = test_step(env, policy_dqn, device, epsilon=0.0)
             print(f"[Test] Episode {episode} - Avg Reward: {avg_reward}")

@@ -1,6 +1,6 @@
 import torch
 import gymnasium
-from Workstation.DQN import DQN
+from DQN import DQN
 from Experiment_Replay import ReplayMemory
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
