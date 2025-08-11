@@ -1,6 +1,6 @@
 import torch
 
-from FrozenLake_Workstation.StateToDQNInput import state_to_dqn_input
+from FrozenLake_Workstation.OneHotEncoding import one_hot_encoding
 
 
 def optimize(mini_batch, policy_dqn, target_dqn, discount_factor, loss_fn, optimizer):
@@ -15,13 +15,13 @@ def optimize(mini_batch, policy_dqn, target_dqn, discount_factor, loss_fn, optim
         else:
             with torch.no_grad():
                 target = torch.FloatTensor(
-                    reward + discount_factor * target_dqn(state_to_dqn_input(new_state, num_states)).max()
+                    reward + discount_factor * target_dqn(one_hot_encoding(new_state, num_states)).max()
                 )
 
-        current_q = policy_dqn(state_to_dqn_input(state, num_states))
+        current_q = policy_dqn(one_hot_encoding(state, num_states))
         current_q_list.append(current_q)
 
-        target_q = target_dqn(state_to_dqn_input(state, num_states))
+        target_q = target_dqn(one_hot_encoding(state, num_states))
 
         target_q[action] = target
         target_q_list.append(target_q)

@@ -1,6 +1,6 @@
 import torch
 
-from StateToDQNInput import state_to_dqn_input
+from OneHotEncoding import one_hot_encoding
 from Model import DQN
 
 
@@ -19,7 +19,7 @@ def test_step(env, episodes):
 
         while (not terminated and not truncated):
             with torch.no_grad():
-                action = policy_dqn(state_to_dqn_input(state, num_states)).argmax().item()
+                action = policy_dqn(one_hot_encoding(state, num_states)).argmax().item()
                 state, reward, terminated, truncated, _ = env.step(action)
 
     env.close()

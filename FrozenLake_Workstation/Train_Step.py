@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Optimize import optimize
-from StateToDQNInput import state_to_dqn_input
+from OneHotEncoding import one_hot_encoding
 from Model import DQN
 
 
@@ -31,12 +31,12 @@ def train_step(env, episodes, memory, learning_rate, mini_batch_size, discount_f
         terminated = False
         truncated = False
 
-        while (not terminated and not truncated):
+        while (not terminated and not truncated): # epsilon-greedy
             if random.random() < epsilon:
                 action = env.action_space.sample()
             else:
                 with torch.no_grad():
-                    action = policy_dqn(state_to_dqn_input(state, num_states)).argmax().item()
+                    action = policy_dqn(one_hot_encoding(state, num_states)).argmax().item()
 
             new_state, reward, terminated, truncated, _ = env.step(action)
             memory.append((state, action, new_state, reward, terminated))
@@ -48,7 +48,7 @@ def train_step(env, episodes, memory, learning_rate, mini_batch_size, discount_f
 
         if len(memory) > mini_batch_size and np.sum(rewards_per_episode) > 0:
             mini_batch = memory.sample(mini_batch_size)
-            optimize(mini_batch, policy_dqn, target_dqn, discount_factor, loss_fn, optimizer)
+            optimize(mini_batch, policy_dqn, target_dqn, discount_factor, loss_fn, optimizer) # 역전파
 
             epsilon = max(epsilon - 1/episodes, 0)
             epsilon_history.append(epsilon)
@@ -72,4 +72,4 @@ def train_step(env, episodes, memory, learning_rate, mini_batch_size, discount_f
     plt.plot(epsilon_history)
 
     plt.savefig("frozen_lake_dqn.png")
-    
+
